@@ -55,7 +55,7 @@ app.post('/webhook', function (req, res) {
       entry.messaging.forEach(function(event) {
         if (event.message || event.postback) {
           db.getPatientByFBId(data).then(function () {
-            if (data.patient == null || global.memoryMap[data.FBPatientId]) {
+            if (event.message.text == "start" || data.patient == null || global.memoryMap[data.FBPatientId]) {
               setup.handle();
             }
             else {

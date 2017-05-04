@@ -68,6 +68,35 @@ function getCurrentEntry(obj) {
     }); 
 }
 
+function putPatient(obj) {
+    return put("patients", obj);
+}
+
+function putEntry(obj) {
+    return put("enteries", obj);
+}
+
+function put(table, obj) {
+    if (obj.skip.put[table]) {
+        return Promise.resolve(obj);
+    }
+    let params = {
+        TableName: table,
+        Item: obj.itemToPut
+    };
+    return new Promise((resolve, reject) => {
+        dynamo.get(params, (err, data) => {
+            if (err) {
+                console.error("Failed putting to " + table + " with error: ", err.message);
+                reject(err);
+            }
+            else {
+                console.log("Successfuly put data");
+                resolve(obj);
+            }
+        });
+    });
+}
 
 module.exports = {
     getPatientByFBId,
