@@ -207,8 +207,9 @@ let questions = [
 
 function handle(event) {
 	data.event = event;
-	data.FBUserId = event.sender.id;
+	data.FBPatientId = event.sender.id;
 	return getPatientByFBId(data)
+		.then(getCurrentEntry)
 		.then(whichQ)
 		.then(parseAnswer)
 		.then(db.put)
@@ -219,7 +220,7 @@ function getPatientByFBId(data) {
 	let params = {
 		TableName: "patients",
 		Key: {
-			HashKey: data.FBUserId
+			HashKey: data.FBPatientId
 		}
 	};
 	return new Promise((resolve, reject) => {
@@ -235,6 +236,28 @@ function getPatientByFBId(data) {
 			}
 		});
 	});
+}
+
+function getCurrentEntry(data) {
+	let params = {
+		TableName: "entries",
+		Key: {
+			HashKey: data.patient.current_entry
+		}
+	};
+	return new Promise((resolve, reject) => {
+		dynamo.get(params, (err, dat) => {
+			if (err) {
+				console.error("Failed getting patient with error: ", err.message);
+				reject(err);
+			}
+			else {
+				console.log("Got patient data");
+				data.current = dat.Item;
+				resolve(data);
+			}
+		});
+	});	
 }
 
 function whichQ(data) {
