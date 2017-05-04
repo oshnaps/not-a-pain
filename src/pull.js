@@ -1,6 +1,5 @@
 ///// pull.js /////
-let aws = require('aws-sdk');
-let dynamo = new AWS.DynamoDB.DocumentClient();
+const db = require('./dynamo');
 
 let questions = [
 	{
@@ -201,68 +200,21 @@ let questions = [
 		q: "Can you please take a picture of the painful area?",
 		a: [""] // activities 
 	}
-
-
 ];
 
 function handle(event) {
 	data.event = event;
 	data.FBPatientId = event.sender.id;
-	return getPatientByFBId(data)
-		.then(getCurrentEntry)
+	return db.getPatientByFBId(data)
+		.then(db.getCurrentEntry)
 		.then(whichQ)
 		.then(parseAnswer)
 		.then(db.put)
 		.then(sendOutput);
 }
 
-function getPatientByFBId(data) {
-	let params = {
-		TableName: "patients",
-		Key: {
-			HashKey: data.FBPatientId
-		}
-	};
-	return new Promise((resolve, reject) => {
-		dynamo.get(params, (err, dat) => {
-			if (err) {
-				console.error("Failed getting patient with error: ", err.message);
-				reject(err);
-			}
-			else {
-				console.log("Got patient data");
-				data.patient = dat.Item;
-				resolve(data);
-			}
-		});
-	});
-}
-
-function getCurrentEntry(data) {
-	let params = {
-		TableName: "entries",
-		Key: {
-			HashKey: data.patient.current_entry
-		}
-	};
-	return new Promise((resolve, reject) => {
-		dynamo.get(params, (err, dat) => {
-			if (err) {
-				console.error("Failed getting patient with error: ", err.message);
-				reject(err);
-			}
-			else {
-				console.log("Got patient data");
-				data.current = dat.Item;
-				resolve(data);
-			}
-		});
-	});	
-}
-
 function whichQ(data) {
 	let currentEntry = data.current;
-
 }
 
 
