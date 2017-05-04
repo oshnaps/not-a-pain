@@ -1,5 +1,6 @@
-const aws = require('aws-sdk');
-const dynamoService = new AWS.DynamoDB(dynamoConfig = {
+const AWS = require('aws-sdk');
+const https = require('https');
+const dynamoService = new AWS.DynamoDB({
     httpOptions: {
         agent: new https.Agent({
             ciphers: 'ALL',
@@ -105,4 +106,4 @@ module.exports = {
     getPatientByFBId,
     getCurrentEntry,
     Qs: scanTable('questions')
-}
+};
