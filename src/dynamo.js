@@ -9,45 +9,60 @@ const dynamoService = new AWS.DynamoDB(dynamoConfig = {
 });
 const dynamo = new AWS.DynamoDB.DocumentClient({ service: dynamoService });
 
-function getPatientByFBId(data) {
-    let params = {
-        TableName: "patients",
-        Key: {
-            HashKey: data.FBPatientId
-        }
-    };
+function scanTable(TableName) {
     return new Promise((resolve, reject) => {
-        dynamo.get(params, (err, dat) => {
+        dynamo.scan({ TableName }, (err, data) => {
             if (err) {
-                console.error("Failed getting patient with error: ", err.message);
+                console.error(`Failed scanning ${TableName} Table with error: ${err.message}`);
                 reject(err);
             }
             else {
-                console.log("Got patient data");
-                data.patient = dat.Item;
+                console.log(`Scanned table ${TableName} succesfully`);
                 resolve(data);
             }
         });
     });
 }
 
-function getCurrentEntry(data) {
+function getPatientByFBId(obj) {
     let params = {
-        TableName: "entries",
+        TableName: "patients",
         Key: {
-            HashKey: data.patient.current_entry
+            HashKey: obj.FBPatientId
         }
     };
     return new Promise((resolve, reject) => {
-        dynamo.get(params, (err, dat) => {
+        dynamo.get(params, (err, data) => {
             if (err) {
                 console.error("Failed getting patient with error: ", err.message);
                 reject(err);
             }
             else {
                 console.log("Got patient data");
-                data.current = dat.Item;
-                resolve(data);
+                obj.patient = data.Item;
+                resolve(obj);
+            }
+        });
+    });
+}
+
+function getCurrentEntry(obj) {
+    let params = {
+        TableName: "entries",
+        Key: {
+            HashKey: obj.patient.current_entry
+        }
+    };
+    return new Promise((resolve, reject) => {
+        dynamo.get(params, (err, data) => {
+            if (err) {
+                console.error("Failed getting patient with error: ", err.message);
+                reject(err);
+            }
+            else {
+                console.log("Got patient data");
+                obj.current = data.Item;
+                resolve(obj);
             }
         });
     }); 
@@ -56,5 +71,6 @@ function getCurrentEntry(data) {
 
 module.exports = {
     getPatientByFBId,
-    getCurrentEntry
+    getCurrentEntry,
+    Qs: scanTable('questions')
 }
