@@ -69,17 +69,20 @@ function getCurrentEntry(obj) {
 }
 
 function putPatient(obj) {
+    if (obj.skip.putPatient) {
+        return Promise.resolve(obj);
+    }
     return put("patients", obj);
 }
 
 function putEntry(obj) {
+    if (obj.skip.putEntry) {
+        return Promise.resolve(obj);
+    }
     return put("enteries", obj);
 }
 
 function put(table, obj) {
-    if (obj.skip.put[table]) {
-        return Promise.resolve(obj);
-    }
     let params = {
         TableName: table,
         Item: obj.itemToPut
