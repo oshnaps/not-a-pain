@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const path = require('path');
 const db = require('./src/dynamo');
+const setup = require('./src/setup');
+const pull = require('./src/pull');
 var messengerButton = "<html><head><title>Facebook Messenger Bot</title></head><body><h1>Facebook Messenger Bot</h1>This is a bot based on Messenger Platform QuickStart. For more details, see their <a href=\"https://developers.facebook.com/docs/messenger-platform/guides/quick-start\">docs</a>.<script src=\"https://button.glitch.me/button.js\" data-style=\"glitch\"></script><div class=\"glitchButton\" style=\"position:fixed;top:20px;right:20px;\"></div></body></html>";
 
 // The rest of the code implements the routes for our Express server.
@@ -50,12 +52,13 @@ app.post('/webhook', function (req, res) {
       let timeOfEvent = entry.time;
       let data = {};
       data.event = event;
+      data.entry = entry;
       data.FBPatientId = event.sender.id;
       // Iterate over each messaging event
       entry.messaging.forEach(function(event) {
         if (event.message || event.postback) {
           db.getPatientByFBId(data).then(function () {
-            if (data.patient == null || global.memoryMap[data.FBPatientId]) {
+            if (event.message.text == "start" || data.patient == null || global.memoryMap[data.FBPatientId]) {
               setup.handle();
             }
             else {

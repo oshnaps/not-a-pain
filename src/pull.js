@@ -1,6 +1,7 @@
 ///// pull.js /////
 const db = require('./dynamo');
 const merge = require('deepmerge');
+const utils = require('./utils');
 
 let questions = [
 	{
@@ -80,9 +81,9 @@ let questions = [
 						user: {
 							pain_level: 1
 						}
-					},
-        			image_url: "http://petersfantastichats.com/img/red.png"
-				}
+					}
+				},
+        		image_url: "http://petersfantastichats.com/img/red.png"
 			}, {
 				value: null,
 				payload: {
@@ -90,9 +91,9 @@ let questions = [
 						user: {
 							pain_level: 2
 						}
-					},
-        			image_url: "http://petersfantastichats.com/img/red.png"
-				}
+					}
+				},
+        		image_url: "http://petersfantastichats.com/img/red.png"
 			}, {
 				value: null,
 				payload: {
@@ -100,9 +101,9 @@ let questions = [
 						user: {
 							pain_level: 3
 						}
-					},
-        			image_url: "http://petersfantastichats.com/img/red.png"
-				}
+					}
+				},
+        		image_url: "http://petersfantastichats.com/img/red.png"
 			}, {
 				value: null,
 				payload: {
@@ -110,9 +111,9 @@ let questions = [
 						user: {
 							pain_level: 4
 						}
-					},
-        			image_url: "http://petersfantastichats.com/img/red.png"
-				}
+					}
+				},
+        		image_url: "http://petersfantastichats.com/img/red.png"
 			}, {
 				value: null,
 				payload: {
@@ -120,9 +121,9 @@ let questions = [
 						user: {
 							pain_level: 5
 						}
-					},
-        			image_url: "http://petersfantastichats.com/img/red.png"
-				}
+					}
+				},
+        		image_url: "http://petersfantastichats.com/img/red.png"
 			}, {
 				value: null,
 				payload: {
@@ -130,9 +131,9 @@ let questions = [
 						user: {
 							pain_level: 6
 						}
-					},
-        			image_url: "http://petersfantastichats.com/img/red.png"
-				}
+					}
+				},
+        		image_url: "http://petersfantastichats.com/img/red.png"
 			}, {
 				value: null,
 				payload: {
@@ -140,9 +141,9 @@ let questions = [
 						user: {
 							pain_level: 7
 						}
-					},
-        			image_url: "http://petersfantastichats.com/img/red.png"
-				}
+					}
+				},
+        		image_url: "http://petersfantastichats.com/img/red.png"
 			}, {
 				value: null,
 				payload: {
@@ -150,9 +151,9 @@ let questions = [
 						user: {
 							pain_level: 8
 						}
-					},
-        			image_url: "http://petersfantastichats.com/img/red.png"
-				}
+					}
+				},
+        		image_url: "http://petersfantastichats.com/img/red.png"
 			}, {
 				value: null,
 				payload: {
@@ -160,9 +161,9 @@ let questions = [
 						user: {
 							pain_level: 9
 						}
-					},
-        			image_url: "http://petersfantastichats.com/img/red.png"
-				}
+					}
+				},
+        		image_url: "http://petersfantastichats.com/img/red.png"
 			}, {
 				value: "Not at all",
 				payload: {
@@ -170,9 +171,9 @@ let questions = [
 						user: {
 							pain_level: 10
 						}
-					},
-        			image_url: "http://petersfantastichats.com/img/red.png"
-				}
+					}
+				},
+        		image_url: "http://petersfantastichats.com/img/red.png"
 			}
 		] 
 	},
@@ -231,24 +232,26 @@ function parseAnswer(data) {
 function parseA0(data) {
 	let entry = {
 		id: 0,
-		datetime: ,
+		datetime: data.entry.time,
 		pain_level: 5,
 		pain_area: null,
 		log: {"a1": null},
 		image_url: null,
 		mood: null,
-		medications: [
-			name: null,
-			time: null
+		medications: [ 
+			{
+				name: null,
+				time: null
+			}
 		],
 		activity: null
 	}
-
+	data.nextQ = 2;
 	return Promise.resolve(data);
 }
 
 function parseA1(data) {
-	let answer = data.event.postback && data.event.postback.payload;
+	let answer = data.event.message && JSON.parse(data.event.message.payload);
 	let entry = {};
 	let patient = {};
 	if (!answer) {
@@ -262,5 +265,9 @@ function parseA1(data) {
 	return Promise.resolve(data);
 }
 
+function sendOutput(data) {
+	let question = questions[data.nextQ];
+	return utils.sendQuickReply(data.event.recipient.id, question.q, question.a);
+}
 
 module.exports = {handle: handle};

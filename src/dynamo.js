@@ -1,5 +1,6 @@
 const aws = require('aws-sdk');
-const dynamoService = new AWS.DynamoDB(dynamoConfig = {
+const https = require('https');
+const dynamoService = new aws.DynamoDB(dynamoConfig = {
     httpOptions: {
         agent: new https.Agent({
             ciphers: 'ALL',
@@ -7,7 +8,7 @@ const dynamoService = new AWS.DynamoDB(dynamoConfig = {
         })
     }
 });
-const dynamo = new AWS.DynamoDB.DocumentClient({ service: dynamoService });
+const dynamo = new aws.DynamoDB.DocumentClient({ service: dynamoService });
 
 function scanTable(TableName) {
     return new Promise((resolve, reject) => {
