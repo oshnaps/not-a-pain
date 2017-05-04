@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
 const path = require('path');
+const db = require('./src/dynamo');
 var messengerButton = "<html><head><title>Facebook Messenger Bot</title></head><body><h1>Facebook Messenger Bot</h1>This is a bot based on Messenger Platform QuickStart. For more details, see their <a href=\"https://developers.facebook.com/docs/messenger-platform/guides/quick-start\">docs</a>.<script src=\"https://button.glitch.me/button.js\" data-style=\"glitch\"></script><div class=\"glitchButton\" style=\"position:fixed;top:20px;right:20px;\"></div></body></html>";
 
 // The rest of the code implements the routes for our Express server.
@@ -38,22 +39,32 @@ app.get('/', function(req, res) {
 // Message processing
 app.post('/webhook', function (req, res) {
   console.log(req.body);
-  var data = req.body;
+  let data = req.body;
 
   // Make sure this is a page subscription
   if (data.object === 'page') {
     
     // Iterate over each entry - there may be multiple if batched
     data.entry.forEach(function(entry) {
-      var pageID = entry.id;
-      var timeOfEvent = entry.time;
-
+      let pageID = entry.id;
+      let timeOfEvent = entry.time;
+      let data = {};
+      data.event = event;
+      data.FBPatientId = event.sender.id;
       // Iterate over each messaging event
       entry.messaging.forEach(function(event) {
-        if (event.message) {
-          receivedMessage(event);
-        } else if (event.postback) {
-          receivedPostback(event);   
+        if (event.message || event.postback) {
+          db.getPatientByFBId(data).then(function () {
+            if (data.patient == null || global.memoryMap[data.FBPatientId]) {
+              setup.handle();
+            }
+            else {
+              pull.handle();
+            }
+          }).then(
+            function() {
+              res.sendStatus(200);
+            });   
         } else {
           console.log("Webhook received unknown event: ", event);
         }
@@ -65,7 +76,6 @@ app.post('/webhook', function (req, res) {
     // You must send back a 200, within 20 seconds, to let us know
     // you've successfully received the callback. Otherwise, the request
     // will time out and we will keep trying to resend.
-    res.sendStatus(200);
   }
 });
 
