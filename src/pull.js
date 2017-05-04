@@ -8,31 +8,6 @@ db.Qs.then(items => {
     Qs  = items.filter(item => item.id === 'push')[0];
 });
 
-function handle(event) {
-	return db.getCurrentEntry(data)
-		.then(whichQ)
-		.then(parseAnswer)
-		.then(db.putPatient)
-		.then(db.putEntry)
-		.then(sendOutput);
-}
-
-function whichQ(data) {
-	// remember to clean this up in the end(?)
-	let currentEntry = data.current;
-	if (!currentEntry) {
-		data.currentQ = 2;
-	}
-	else {
-		data.currentQ = currentEntry.last_question_asked;
-	}
-	return Promise.resolve(data);
-}
-
-function parseAnswer(data) {
-	return ("parseA" + data.currentQ).call(null, data);
-}
-
 function parseA0(data) {
 	let entry = {
 		id: 0,
@@ -68,6 +43,35 @@ function parseA1(data) {
 	}
 	return Promise.resolve(data);
 }
+
+let parsers = [parseA0, parseA1];
+
+function handle(data) {
+	return db.getCurrentEntry(data)
+		.then(whichQ)
+		.then(parseAnswer)
+		.then(db.putPatient)
+		.then(db.putEntry)
+		.then(sendOutput);
+}
+
+function whichQ(data) {
+	// remember to clean this up in the end(?)
+	let currentEntry = data.current;
+	if (!currentEntry) {
+		data.currentQ = 2;
+	}
+	else {
+		data.currentQ = currentEntry.last_question_asked;
+	}
+	return Promise.resolve(data);
+}
+
+function parseAnswer(data) {
+	let parseFunc = parsers[data.currentQ];
+	return parseFunc(data);
+}
+
 
 function sendOutput(data) {
 	let question = Qs[data.nextQ];

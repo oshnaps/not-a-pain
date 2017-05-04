@@ -1,3 +1,5 @@
+const request = require('request');
+
 function getQuestionByLabel({ Qs, label}) {
     let arr = Qs.filter(q => q.label === label);
     if (arr.length > 1) {
@@ -27,7 +29,8 @@ function sendTextMessage(data) {
 
 function sendQuickReply(data) {
     let { patientId, next, localhost } = data;
-    let quick_replies = next.a.forEach(item => {
+    let quick_replies = [];
+    next.a.forEach(item => {
         quick_replies.push({
             context_type: 'text',
             title: item.value,
