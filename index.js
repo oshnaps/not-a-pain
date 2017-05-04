@@ -50,12 +50,13 @@ app.post('/webhook', function (req, res) {
     data.entry.forEach(function(entry) {
       let pageID = entry.id;
       let timeOfEvent = entry.time;
-      let data = {};
-      let event = entry;
-      data.event = event;
-      data.FBPatientId = event.sender.id;
+
       // Iterate over each messaging event
       entry.messaging.forEach(function(event) {
+        let data = {};
+        data.event = event;
+        data.FBPatientId = event.sender.id;
+        data.event.time = timeOfEvent;
         if (event.message || event.postback) {
           db.getPatientByFBId(data).then(function () {
             if (event.message.text == "start" || data.patient == null || global.memoryMap[data.FBPatientId]) {

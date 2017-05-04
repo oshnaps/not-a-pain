@@ -22,7 +22,7 @@ function scanTable(TableName) {
             }
             else {
                 console.log(`Scanned table ${TableName} succesfully`);
-                resolve(data.items);
+                resolve(data.Items);
             }
         });
     });
