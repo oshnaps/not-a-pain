@@ -14,10 +14,10 @@ function getQuestionByLabel({ Qs, label}) {
 }
 
 function sendTextMessage(data) {
-    let { patientId, next, localhost } = data;
+    let { FBPatientId, next, localhost } = data;
     data.messageData = {
         recipient: {
-            id: patientId
+            id: FBPatientId
         },
         message: {
             text: next.q
@@ -28,18 +28,18 @@ function sendTextMessage(data) {
 }
 
 function sendQuickReply(data) {
-    let { patientId, next, localhost } = data;
+    let { FBPatientId, next, localhost } = data;
     let quick_replies = [];
     next.a.forEach(item => {
         quick_replies.push({
-            context_type: 'text',
+            content_type: 'text',
             title: item.value,
             payload: JSON.stringify(item.payload)
         });
     });
     data.messageData = {
         recipient: {
-            id: patientId
+            id: FBPatientId
         },
         message: {
             text: next.q,
@@ -68,7 +68,7 @@ function callSendAPI(data) {
             messageId, recipientId);
         } else {
           console.error("Unable to send message.");
-          console.error(response);
+          //console.error(response);
           console.error(error);
           reject();
         }

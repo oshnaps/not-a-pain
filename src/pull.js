@@ -74,7 +74,7 @@ function parseAnswer(data) {
 
 
 function sendOutput(data) {
-	let question = Qs[data.nextQ];
+	let question = Qs.questions[data.nextQ];
 	data.next = question;
 	return utils.sendQuickReply(data);
 }
