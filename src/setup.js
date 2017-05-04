@@ -59,10 +59,10 @@ function send(data) {
     } else if (typeof answers === 'array' && answers.length > 0) {
         if (typeof answers[0] === 'object') {
             // quick replies
-            utils.sendQuickReply(data.FBPatientId, data.next.q, data.next.a);
+            return utils.sendQuickReply(data);
         } else {
             // regular text message
-            utils.sendTextMessage(data.FBPatientId, data.next.q);
+            return utils.sendTextMessage(data);
         }
     } else {
         console.error('I don\'t know what to do!!!!');

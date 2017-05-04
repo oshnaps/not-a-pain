@@ -1,6 +1,12 @@
 const aws = require('aws-sdk');
-aws.config.update({
+/*aws.config.update({
     region: 'us-west-2'
+});*/
+
+let credentials = new aws.Credentials('AKIAJNVL3HTPWHN3WA5A', 'o93lVrS9pUx9FGUJiZU1ngKfZa0ywba+42TqnkYc');
+aws.config.update({
+    region: 'us-west-2',
+    credentials
 });
 const https = require('https');
 const dynamoService = new aws.DynamoDB(dynamoConfig = {
