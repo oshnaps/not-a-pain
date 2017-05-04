@@ -51,8 +51,8 @@ app.post('/webhook', function (req, res) {
       let pageID = entry.id;
       let timeOfEvent = entry.time;
       let data = {};
+      let event = entry;
       data.event = event;
-      data.entry = entry;
       data.FBPatientId = event.sender.id;
       // Iterate over each messaging event
       entry.messaging.forEach(function(event) {

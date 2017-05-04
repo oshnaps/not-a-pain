@@ -3,7 +3,7 @@ const db = require('./dynamo');
 const utils = require('./utils');
 let Qs = undefined;
 db.Qs.then(items => {
-    Qs  = items.filter(item => item.id === 'setup')[0];
+    Qs = items.filter(item => item.id === 'setup')[0];
 });
 
 function handle(data) {

@@ -232,7 +232,7 @@ function parseAnswer(data) {
 function parseA0(data) {
 	let entry = {
 		id: 0,
-		datetime: data.entry.time,
+		datetime: data.event.time,
 		pain_level: 5,
 		pain_area: null,
 		log: {"a1": null},

@@ -1,4 +1,7 @@
 const aws = require('aws-sdk');
+aws.config.update({
+    region: 'us-west-2'
+});
 const https = require('https');
 const dynamoService = new aws.DynamoDB(dynamoConfig = {
     httpOptions: {
@@ -19,7 +22,7 @@ function scanTable(TableName) {
             }
             else {
                 console.log(`Scanned table ${TableName} succesfully`);
-                resolve(data);
+                resolve(data.items);
             }
         });
     });
