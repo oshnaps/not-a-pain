@@ -71,7 +71,8 @@ function parseA1(data) {
 
 function sendOutput(data) {
 	let question = Qs[data.nextQ];
-	return utils.sendQuickReply(data.event.recipient.id, question.q, question.a);
+	data.next = question;
+	return utils.sendQuickReply(data);
 }
 
 module.exports = {handle: handle};

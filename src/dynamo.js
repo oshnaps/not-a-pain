@@ -38,7 +38,7 @@ function getPatientByFBId(obj) {
     let params = {
         TableName: "patients",
         Key: {
-            HashKey: obj.FBPatientId
+            id: obj.FBPatientId
         }
     };
     return new Promise((resolve, reject) => {
@@ -57,20 +57,23 @@ function getPatientByFBId(obj) {
 }
 
 function getCurrentEntry(obj) {
+    if (!obj.patient.current_entry) {
+        return Promise.resolve(obj);
+    }
     let params = {
         TableName: "entries",
         Key: {
-            HashKey: obj.patient.current_entry
+            id: obj.patient.current_entry
         }
     };
     return new Promise((resolve, reject) => {
         dynamo.get(params, (err, data) => {
             if (err) {
-                console.error("Failed getting patient with error: ", err.message);
+                console.error("Failed getting entry with error: ", err.message);
                 reject(err);
             }
             else {
-                console.log("Got patient data");
+                console.log("Got entry data");
                 obj.current = data.Item;
                 resolve(obj);
             }
