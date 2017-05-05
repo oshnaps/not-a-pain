@@ -9,7 +9,7 @@ db.Qs.then(items => {
 });
 
 function parseA0(data) {
-	let uid = Date.now();
+	let uid = Date.now() + "";
 	let entry = {
 		id: uid,
 		datetime: data.event.time,
@@ -24,11 +24,15 @@ function parseA0(data) {
 				time: null
 			}
 		],
-		activity: null
+		activity: null,
+		patient_id: data.FBPatientId,
+		last_question_asked: 2
 	}
+	let patient = {current_entry: uid};
 	data.nextQ = 2;
-	data.itemToPush.entries = data.current ? merge.all(data.current, entry) : entry;
-	data.itemToPush.patients = merge.all(data.patient, patient);
+	data.itemToPut = {};
+	data.itemToPut.entries = data.current ? merge.all([data.current, entry]) : entry;
+	data.itemToPut.patients = merge.all([data.patient, patient]);
 	return Promise.resolve(data);
 }
 
@@ -40,8 +44,9 @@ function parseA1(data) {
 		console.error("Handle this situation!!!");
 	}
 	else {
-		data.itemToPush.entries = merge.all(data.current, entry);
-		data.itemToPush.patients = merge.all(data.patient, patient);
+		data.itemToPut = {};
+		data.itemToPut.entries = merge.all([data.current, entry]);
+		data.itemToPut.patients = merge.all([data.patient, patient]);
 		data.nextQ = answer.goto || Qs[1].goto || data.currentQ + 1;
 	}
 	return Promise.resolve(data);
@@ -62,7 +67,7 @@ function whichQ(data) {
 	// remember to clean this up in the end(?)
 	let currentEntry = data.current;
 	if (!currentEntry) {
-		data.currentQ = 2;
+		data.currentQ = -1;
 	}
 	else {
 		data.currentQ = currentEntry.last_question_asked;
@@ -71,10 +76,9 @@ function whichQ(data) {
 }
 
 function parseAnswer(data) {
-	let parseFunc = parsers[data.currentQ];
+	let parseFunc = parsers[data.currentQ + 1];
 	return parseFunc(data);
 }
-
 
 function sendOutput(data) {
 	let question = Qs.questions[data.nextQ];

@@ -67,7 +67,7 @@ app.post('/webhook', function (req, res) {
               return pull.handle(data);
             }
           }).then(message => {
-              res.sendStatus(200).send(message);
+              res.status(200).send(message);
             });   
         } else {
           console.log("Webhook received unknown event: ", event);

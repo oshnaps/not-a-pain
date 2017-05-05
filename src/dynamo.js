@@ -44,7 +44,7 @@ function getPatientByFBId(obj) {
     return new Promise((resolve, reject) => {
         dynamo.get(params, (err, data) => {
             if (err) {
-                console.error("Failed getting patient with error: ", err.message);
+                console.error("Failed getting patient with error: ", err);
                 reject(err);
             }
             else {
@@ -69,7 +69,7 @@ function getCurrentEntry(obj) {
     return new Promise((resolve, reject) => {
         dynamo.get(params, (err, data) => {
             if (err) {
-                console.error("Failed getting entry with error: ", err.message);
+                console.error("Failed getting entry with error: ", err);
                 reject(err);
             }
             else {
@@ -82,14 +82,14 @@ function getCurrentEntry(obj) {
 }
 
 function putPatient(obj) {
-    if (obj.skip.putPatient) {
+    if (obj.skip && obj.skip.putPatient) {
         return Promise.resolve(obj);
     }
     return put("patients", obj);
 }
 
 function putEntry(obj) {
-    if (obj.skip.putEntry) {
+    if (obj.skip && obj.skip.putEntry) {
         return Promise.resolve(obj);
     }
     return put("entries", obj);
@@ -103,7 +103,7 @@ function put(table, obj) {
     return new Promise((resolve, reject) => {
         dynamo.put(params, (err, data) => {
             if (err) {
-                console.error("Failed putting to " + table + " with error: ", err.message);
+                console.error("Failed putting to " + table + " with error: ", err);
                 reject(err);
             }
             else {
@@ -117,5 +117,7 @@ function put(table, obj) {
 module.exports = {
     getPatientByFBId,
     getCurrentEntry,
+    putPatient,
+    putEntry,
     Qs: scanTable('questions')
 };
