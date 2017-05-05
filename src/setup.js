@@ -19,7 +19,12 @@ function handle(data) {
         .then(parseAnswer)
         .then(whichQ)
         .then(send)
-        .then(cleanup);
+        .then(cleanup)
+        .catch(e => {
+            console.error('don\'t know what happened but I\'m cleaning up');
+            console.error(e);
+            delete global.memoryMap[data.FBPatientId];
+        });
 }
 
 function whichQ(data) {
