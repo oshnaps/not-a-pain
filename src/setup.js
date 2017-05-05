@@ -64,7 +64,14 @@ function parseAnswer(data) {
         } catch (e) {}
         return Promise.resolve(data);
     } else if (Hoek.reach(data, 'message.attachments.payload.url') && data.message.attachments.type === 'image') {
-        // save image info
+        // get image info
+        data.conv.patient = deepmerge(data.conv.patient, {
+            painAreaImage: {
+                url: data.message.attachments.payload.url,
+                date: data.event.time
+              }
+        });
+        return Promise.resolve(data);
     }
 }
 
