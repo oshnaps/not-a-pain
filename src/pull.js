@@ -26,17 +26,17 @@ function parseA0(data) {
 		],
 		activity: null,
 		patient_id: data.FBPatientId,
-		last_question_asked: 2
+		last_question_asked: 3
 	}
 	let patient = {current_entry: uid};
-	data.nextQ = 2;
+	data.nextQ = 3;
 	data.itemToPut = {};
 	data.itemToPut.entries = data.current ? merge.all([data.current, entry]) : entry;
 	data.itemToPut.patients = merge.all([data.patient, patient]);
 	return Promise.resolve(data);
 }
 
-function parseA1(data) {
+function parseA3(data) {
 	let answer = data.event.message && JSON.parse(data.event.message.payload);
 	let entry = {};
 	let patient = {};
@@ -52,7 +52,8 @@ function parseA1(data) {
 	return Promise.resolve(data);
 }
 
-let parsers = [parseA0, parseA1];
+
+let parsers = [parseA0, null, null, parseA3];
 
 function handle(data) {
 	return db.getCurrentEntry(data)
@@ -60,14 +61,15 @@ function handle(data) {
 		.then(parseAnswer)
 		.then(db.putPatient)
 		.then(db.putEntry)
-		.then(sendOutput);
+		.then(sendOutput)
+		.catch(cleanup);
 }
 
 function whichQ(data) {
 	// remember to clean this up in the end(?)
 	let currentEntry = data.current;
 	if (!currentEntry) {
-		data.currentQ = -1;
+		data.currentQ = 0;
 	}
 	else {
 		data.currentQ = currentEntry.last_question_asked;
@@ -76,7 +78,7 @@ function whichQ(data) {
 }
 
 function parseAnswer(data) {
-	let parseFunc = parsers[data.currentQ + 1];
+	let parseFunc = parsers[data.currentQ];
 	return parseFunc(data);
 }
 
@@ -84,6 +86,11 @@ function sendOutput(data) {
 	let question = Qs.questions[data.nextQ];
 	data.next = question;
 	return utils.sendQuickReply(data);
+}
+
+function cleanup(data) {
+	data.current_entry = null;
+	return db.putPatient(data);
 }
 
 module.exports = {handle: handle};
