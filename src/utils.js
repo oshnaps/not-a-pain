@@ -13,6 +13,34 @@ function getQuestionByLabel(Qs, label) {
     }
 }
 
+function sendButtonsMessage(data) {
+    let { FBPatientId, next, localhost } = data;
+    let buttons = [];
+    next.a.forEach(item => {
+        buttons.push({
+            content_type: 'postback',
+            title: item.value,
+            payload: JSON.stringify(item.payload)
+        });
+    });
+
+    data.messageData = {
+        recipient: {
+            id: FBPatientId
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "button",
+                    text: next.q
+                },
+                buttons
+            }   
+        }
+    };
+}
+
 function sendTextMessage(data) {
     let { FBPatientId, next, localhost } = data;
     data.messageData = {

@@ -57,7 +57,7 @@ app.post('/webhook', function (req, res) {
         ourData.FBPatientId = event.sender.id;
         ourData.event.time = timeOfEvent;
         ourData.localhost = req.hostname === 'localhost';
-        if (event.message) {
+        if (event.message || event.postback) {
           db.getPatientByFBId(ourData).then((data) => {
             if (event.message.text == "start" || data.patient == null || global.memoryMap[data.FBPatientId]) {
               return setup.handle(data);

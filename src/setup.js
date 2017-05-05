@@ -15,6 +15,7 @@ db.Qs.then(items => {
 
 function handle(data) {
     data.message = data.event.message;
+    data.postback = data.event.postback;
     return getConversationData(data)
         .then(parseAnswer)
         .then(whichQ)
@@ -53,24 +54,35 @@ function getConversationData(data) {
 }
 
 function parseAnswer(data) {
+    let postback = Hoek.reach(data, 'postback.payload');
+    let textPayload = Hoek.reach(data, 'message.quick_reply.payload');
+    let attachments = Hoek.reach(data, 'message.attachments');
     if (!Hoek.reach(data, 'conv.currentQ')) {
         return Promise.resolve(data);
-    } else if (Hoek.reach(data, 'message.quick_reply.payload')) {
+    } else if (textPayload) {
         try {
-            data.message.payload = JSON.parse(data.message.quick_reply.payload);
+            data.message.payload = JSON.parse(textPayload);
             if (data.message.payload.value) {
                 data.conv.patient = deepmerge(data.conv.patient, data.message.payload.value);
             }
         } catch (e) {}
         return Promise.resolve(data);
-    } else if (Hoek.reach(data, 'message.attachments.payload.url') && data.message.attachments.type === 'image') {
+    } else if (attachments && attachments.length > 0 && attachments[0].type === 'image') {
         // get image info
         data.conv.patient = deepmerge(data.conv.patient, {
             painAreaImage: {
-                url: data.message.attachments.payload.url,
+                url: attachments[0].payload.url,
                 date: data.event.time
               }
         });
+        return Promise.resolve(data);
+    } else if (postback) {
+        try {
+            data.message.payload = JSON.parse(postback);
+            if (data.message.payload.value) {
+                data.conv.patient = deepmerge(data.conv.patient, data.message.payload.value);
+            }
+        } catch (e) {}
         return Promise.resolve(data);
     }
 }
@@ -83,7 +95,7 @@ function send(data) {
     } else if (Array.isArray(answers) && answers.length > 0) {
         if (typeof answers[0] === 'object' && answers[0]!== null) {
             // quick replies
-            return utils.sendQuickReply(data);
+            return utils.sendButtonsMessage(data);
         } else {
             // regular text message
             return utils.sendTextMessage(data);
