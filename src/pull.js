@@ -9,8 +9,9 @@ db.Qs.then(items => {
 });
 
 function parseA0(data) {
+	let uid = Date.now();
 	let entry = {
-		id: 0,
+		id: uid,
 		datetime: data.event.time,
 		pain_level: 5,
 		pain_area: null,
@@ -26,6 +27,8 @@ function parseA0(data) {
 		activity: null
 	}
 	data.nextQ = 2;
+	data.itemToPush.entries = data.current ? merge.all(data.current, entry) : entry;
+	data.itemToPush.patients = merge.all(data.patient, patient);
 	return Promise.resolve(data);
 }
 
@@ -37,8 +40,8 @@ function parseA1(data) {
 		console.error("Handle this situation!!!");
 	}
 	else {
-		data.newEntry = merge.all(data.current, entry);
-		data.newPatient = merge.all(data.patient, patient);
+		data.itemToPush.entries = merge.all(data.current, entry);
+		data.itemToPush.patients = merge.all(data.patient, patient);
 		data.nextQ = answer.goto || Qs[1].goto || data.currentQ + 1;
 	}
 	return Promise.resolve(data);

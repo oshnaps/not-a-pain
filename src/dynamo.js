@@ -92,16 +92,16 @@ function putEntry(obj) {
     if (obj.skip.putEntry) {
         return Promise.resolve(obj);
     }
-    return put("enteries", obj);
+    return put("entries", obj);
 }
 
 function put(table, obj) {
     let params = {
         TableName: table,
-        Item: obj.itemToPut
+        Item: obj.itemToPut[table]
     };
     return new Promise((resolve, reject) => {
-        dynamo.get(params, (err, data) => {
+        dynamo.put(params, (err, data) => {
             if (err) {
                 console.error("Failed putting to " + table + " with error: ", err.message);
                 reject(err);

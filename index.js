@@ -61,10 +61,10 @@ app.post('/webhook', function (req, res) {
         if (event.message) {
           db.getPatientByFBId(ourData).then((data) => {
             if (event.message.text == "start" || data.patient == null || global.memoryMap[data.FBPatientId]) {
-              setup.handle(data);
+              return setup.handle(data);
             }
             else {
-              pull.handle(data);
+              return pull.handle(data);
             }
           }).then(message => {
               res.sendStatus(200).send(message);
