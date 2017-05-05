@@ -69,6 +69,7 @@ app.post('/webhook', function (req, res) {
               res.status(200).send(message);
             });   
         } else {
+          res.status(200);
           console.log("Webhook received unknown event: ", event);
         }
       });
