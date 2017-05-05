@@ -1,4 +1,4 @@
-function getQuestionByLabel({ Qs, label}) {
+function getQuestionByLabel(Qs, label) {
     let arr = Qs.filter(q => q.label === label);
     if (arr.length > 1) {
         console.error('found more than one matching question');
@@ -12,10 +12,10 @@ function getQuestionByLabel({ Qs, label}) {
 }
 
 function sendTextMessage(data) {
-    let { patientId, next, localhost } = data;
+    let { FBPatientId, next, localhost } = data;
     data.messageData = {
         recipient: {
-            id: patientId
+            id: FBPatientId
         },
         message: {
             text: next.q
@@ -26,8 +26,9 @@ function sendTextMessage(data) {
 }
 
 function sendQuickReply(data) {
-    let { patientId, next, localhost } = data;
-    let quick_replies = next.a.forEach(item => {
+    let { FBPatientId, next, localhost } = data;
+    let quick_replies = [];
+    next.a.forEach(item => {
         quick_replies.push({
             context_type: 'text',
             title: item.value,
@@ -36,7 +37,7 @@ function sendQuickReply(data) {
     });
     data.messageData = {
         recipient: {
-            id: patientId
+            id: FBPatientId
         },
         message: {
             text: next.q,

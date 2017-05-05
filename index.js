@@ -40,7 +40,6 @@ app.get('/', function(req, res) {
 
 // Message processing
 app.post('/webhook', function (req, res) {
-  console.log(req.body);
   let data = req.body;
 
   // Make sure this is a page subscription
@@ -61,13 +60,13 @@ app.post('/webhook', function (req, res) {
         if (event.message) {
           db.getPatientByFBId(data).then(function () {
             if (event.message.text == "start" || data.patient == null || global.memoryMap[data.FBPatientId]) {
-              setup.handle(data);
+              return setup.handle(data);
             }
             else {
-              pull.handle(data);
+              return pull.handle(data);
             }
           }).then(message => {
-              res.sendStatus(200).send(message);
+              res.status(200).send(message);
             });   
         } else {
           console.log("Webhook received unknown event: ", event);

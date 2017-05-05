@@ -38,7 +38,7 @@ function getPatientByFBId(obj) {
     let params = {
         TableName: "patients",
         Key: {
-            HashKey: obj.FBPatientId
+            id: parseInt(obj.FBPatientId)
         }
     };
     return new Promise((resolve, reject) => {
