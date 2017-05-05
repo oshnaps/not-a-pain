@@ -1,3 +1,5 @@
+const request = require('request');
+
 function getQuestionByLabel(Qs, label) {
     let arr = Qs.filter(q => q.label === label);
     if (arr.length > 1) {
@@ -30,7 +32,7 @@ function sendQuickReply(data) {
     let quick_replies = [];
     next.a.forEach(item => {
         quick_replies.push({
-            context_type: 'text',
+            content_type: 'text',
             title: item.value,
             payload: JSON.stringify(item.payload)
         });
@@ -66,7 +68,7 @@ function callSendAPI(data) {
             messageId, recipientId);
         } else {
           console.error("Unable to send message.");
-          console.error(response);
+          //console.error(response);
           console.error(error);
           reject();
         }

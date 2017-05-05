@@ -44,7 +44,7 @@ function getPatientByFBId(obj) {
     return new Promise((resolve, reject) => {
         dynamo.get(params, (err, data) => {
             if (err) {
-                console.error("Failed getting patient with error: ", err.message);
+                console.error("Failed getting patient with error: ", err);
                 reject(err);
             }
             else {
@@ -57,20 +57,23 @@ function getPatientByFBId(obj) {
 }
 
 function getCurrentEntry(obj) {
+    if (!obj.patient.current_entry) {
+        return Promise.resolve(obj);
+    }
     let params = {
         TableName: "entries",
         Key: {
-            HashKey: obj.patient.current_entry
+            id: obj.patient.current_entry
         }
     };
     return new Promise((resolve, reject) => {
         dynamo.get(params, (err, data) => {
             if (err) {
-                console.error("Failed getting patient with error: ", err.message);
+                console.error("Failed getting entry with error: ", err);
                 reject(err);
             }
             else {
-                console.log("Got patient data");
+                console.log("Got entry data");
                 obj.current = data.Item;
                 resolve(obj);
             }
@@ -79,28 +82,28 @@ function getCurrentEntry(obj) {
 }
 
 function putPatient(obj) {
-    if (obj.skip.putPatient) {
+    if (obj.skip && obj.skip.putPatient) {
         return Promise.resolve(obj);
     }
     return put("patients", obj);
 }
 
 function putEntry(obj) {
-    if (obj.skip.putEntry) {
+    if (obj.skip && obj.skip.putEntry) {
         return Promise.resolve(obj);
     }
-    return put("enteries", obj);
+    return put("entries", obj);
 }
 
 function put(table, obj) {
     let params = {
         TableName: table,
-        Item: obj.itemToPut
+        Item: obj.itemToPut[table]
     };
     return new Promise((resolve, reject) => {
-        dynamo.get(params, (err, data) => {
+        dynamo.put(params, (err, data) => {
             if (err) {
-                console.error("Failed putting to " + table + " with error: ", err.message);
+                console.error("Failed putting to " + table + " with error: ", err);
                 reject(err);
             }
             else {
@@ -114,5 +117,7 @@ function put(table, obj) {
 module.exports = {
     getPatientByFBId,
     getCurrentEntry,
+    putPatient,
+    putEntry,
     Qs: scanTable('questions')
 };

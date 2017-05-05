@@ -52,13 +52,13 @@ app.post('/webhook', function (req, res) {
 
       // Iterate over each messaging event
       entry.messaging.forEach(function(event) {
-        let data = {};
-        data.event = event;
-        data.FBPatientId = event.sender.id;
-        data.event.time = timeOfEvent;
-        data.localhost = req.hostname === 'localhost';
+        let ourData = {};
+        ourData.event = event;
+        ourData.FBPatientId = event.sender.id;
+        ourData.event.time = timeOfEvent;
+        ourData.localhost = req.hostname === 'localhost';
         if (event.message) {
-          db.getPatientByFBId(data).then(function () {
+          db.getPatientByFBId(ourData).then((data) => {
             if (event.message.text == "start" || data.patient == null || global.memoryMap[data.FBPatientId]) {
               return setup.handle(data);
             }
