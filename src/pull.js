@@ -26,18 +26,18 @@ function parseA0(data) {
 		],
 		activity: null,
 		patient_id: data.FBPatientId,
-		last_question_asked: 3
+		last_question_asked: 2
 	}
 	let patient = {current_entry: uid};
-	data.nextQ = 3;
+	data.nextQ = 2;
 	data.itemToPut = {};
 	data.itemToPut.entries = data.current ? merge.all([data.current, entry]) : entry;
 	data.itemToPut.patients = merge.all([data.patient, patient]);
 	return Promise.resolve(data);
 }
 
-function parseA3(data) {
-	let answer = data.event.message && JSON.parse(data.event.message.payload);
+function parseA2(data) {
+	let answer = data.event.message.quick_reply && data.event.message.quick_reply.payload && JSON.parse(data.event.message.quick_reply.payload);
 	let entry = {};
 	let patient = {};
 	if (!answer) {
@@ -52,8 +52,11 @@ function parseA3(data) {
 	return Promise.resolve(data);
 }
 
+function parseA3(data) {
+	
+}
 
-let parsers = [parseA0, null, null, parseA3];
+let parsers = [parseA0, null, parseA2, null];
 
 function handle(data) {
 	return db.getCurrentEntry(data)
@@ -85,8 +88,14 @@ function parseAnswer(data) {
 function sendOutput(data) {
 	let question = Qs.questions[data.nextQ];
 	data.next = question;
-	return utils.sendQuickReply(data);
+	if (typeof(question.a[0]) === 'object' && question.a[0] !== null) {
+		return utils.sendQuickReply(data);
+	}
+	else {
+		return utils.sendTextMessage(data);
+	}
 }
+	
 
 function cleanup(data) {
 	data.current_entry = null;

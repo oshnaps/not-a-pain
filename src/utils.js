@@ -31,11 +31,15 @@ function sendQuickReply(data) {
     let { FBPatientId, next, localhost } = data;
     let quick_replies = [];
     next.a.forEach(item => {
-        quick_replies.push({
+        let quick_reply = {
             content_type: 'text',
             title: item.value,
             payload: JSON.stringify(item.payload)
-        });
+        };
+        if (item.image_url) {
+            quick_reply.image_url = item.image_url;
+        }
+        quick_replies.push(quick_reply);
     });
     data.messageData = {
         recipient: {
