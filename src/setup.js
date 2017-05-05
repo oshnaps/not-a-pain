@@ -53,16 +53,18 @@ function getConversationData(data) {
 }
 
 function parseAnswer(data) {
-    if (!data.conv.currentQ) {
+    if (!Hoek.reach(data, 'conv.currentQ')) {
         return Promise.resolve(data);
-    } else if (data.message && data.message.payload) {
+    } else if (Hoek.reach(data, 'message.quick_reply.payload')) {
         try {
-            data.message.payload = JSON.parse(data.message.payload);
+            data.message.payload = JSON.parse(data.message.quick_reply.payload);
             if (data.message.payload.value) {
                 data.conv.patient = deepmerge(data.conv.patient, data.message.payload.value);
             }
         } catch (e) {}
         return Promise.resolve(data);
+    } else if (Hoek.reach(data, 'message.attachments.payload.url') && data.message.attachments.type === 'image') {
+        // save image info
     }
 }
 
@@ -70,8 +72,9 @@ function send(data) {
     let answers = data.next.a;
     if (!answers) {
         // free text
+        return utils.sendTextMessage(data);
     } else if (Array.isArray(answers) && answers.length > 0) {
-        if (typeof answers[0] === 'object') {
+        if (typeof answers[0] === 'object' && answers[0]!== null) {
             // quick replies
             return utils.sendQuickReply(data);
         } else {
